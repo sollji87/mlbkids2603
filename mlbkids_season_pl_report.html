@@ -17,11 +17,11 @@
   /* ===== Layout (fit-to-viewport) ===== */
   .dashboard {
     display: grid;
-    grid-template-rows: 44px 74px 1fr;
+    grid-template-rows: 50px 86px 1fr;
     gap: 10px;
     height: 100vh;
     width: 100vw;
-    padding: 10px 14px;
+    padding: 12px 16px;
   }
   .main-grid {
     display: grid;
@@ -60,7 +60,7 @@
   /* ===== KPI Cards ===== */
   .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
   .kpi {
-    background: #ffffff; border-radius: 8px; padding: 10px 14px;
+    background: #ffffff; border-radius: 8px; padding: 12px 14px;
     border: 1px solid #e2e8f0;
     display: grid; grid-template-columns: auto 1fr; gap: 12px;
     align-items: center;
@@ -81,12 +81,12 @@
   /* ===== Main Table Card ===== */
   .main-card {
     background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0;
-    padding: 10px 14px; display: flex; flex-direction: column;
+    padding: 12px 14px; display: flex; flex-direction: column;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); overflow: hidden;
   }
   .card-head {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;
   }
   .card-head h2 {
     font-size: 12.5px; font-weight: 700; color: #0f172a;
@@ -109,7 +109,7 @@
   .tbl-wrap { flex: 1; overflow: hidden; }
   table { width: 100%; border-collapse: collapse; font-size: 10.5px; table-layout: fixed; }
   thead th {
-    background: #f1f5f9; color: #334155; padding: 5px 4px; text-align: center;
+    background: #f1f5f9; color: #334155; padding: 6px 4px; text-align: center;
     font-weight: 700; border-bottom: 2px solid #cbd5e1;
     font-size: 10px; letter-spacing: -0.01em;
   }
@@ -130,14 +130,14 @@
 
   /* Table footnote */
   .table-foot-note {
-    margin-top: 6px; font-size: 9.5px; color: #334155;
-    padding: 5px 10px; background: #f8fafc; border-radius: 4px;
+    margin-top: 8px; font-size: 9.5px; color: #334155;
+    padding: 7px 10px; background: #f8fafc; border-radius: 4px;
     border: 1px solid #e2e8f0;
     display: flex; gap: 14px;
   }
   .table-foot-note b { color: #0f172a; margin-right: 3px; }
   tbody td {
-    padding: 4px 4px; text-align: right; border-bottom: 1px solid #f1f5f9;
+    padding: 5px 4px; text-align: right; border-bottom: 1px solid #f1f5f9;
     color: #1e293b; font-variant-numeric: tabular-nums;
   }
   tbody td.left { text-align: left; font-weight: 600; color: #0f172a; }
@@ -168,12 +168,12 @@
 
   .panel {
     background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0;
-    padding: 10px 14px; display: flex; flex-direction: column;
+    padding: 12px 14px; display: flex; flex-direction: column;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); overflow: hidden;
   }
   .panel h3 {
     font-size: 12px; font-weight: 700; color: #0f172a;
-    margin-bottom: 6px; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 8px; padding-bottom: 7px; border-bottom: 1px solid #e2e8f0;
     display: flex; align-items: center; gap: 6px;
   }
   .panel h3::before {
@@ -183,8 +183,8 @@
 
   .panel table { font-size: 10.5px; }
   .panel table thead th { padding: 4px 4px; font-size: 10px; }
-  .panel table tbody td { padding: 4px 4px; }
-  .panel .note { font-size: 9.5px; color: #94a3b8; margin-top: 6px; line-height: 1.4; }
+  .panel table tbody td { padding: 5px 4px; }
+  .panel .note { font-size: 9.5px; color: #94a3b8; margin-top: 8px; line-height: 1.45; }
 
   /* Insight list */
   .insight-list {
@@ -192,7 +192,7 @@
     overflow: auto; flex: 1;
   }
   .insight-list li {
-    padding: 3px 6px; font-size: 9.8px; line-height: 1.3;
+    padding: 5px 6px; font-size: 9.8px; line-height: 1.4;
     background: #f8fafc; border-left: 2.5px solid #cbd5e1; border-radius: 2px;
     color: #334155;
   }
@@ -208,9 +208,9 @@
   .add-insight-btn:hover { background: #1e40af; color: #fff; }
 
   /* Scenario Tabs */
-  .scenario-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 7px; }
+  .scenario-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 9px; }
   .stab {
-    padding: 5px 6px; border: 1px solid #e2e8f0;
+    padding: 7px 7px; border: 1px solid #e2e8f0;
     background: #f8fafc; border-radius: 5px; cursor: pointer;
     font-family: inherit;
     display: grid; grid-template-columns: 1fr auto; gap: 2px 6px;
@@ -235,21 +235,21 @@
 
   /* Scenario Body */
   .scenario-body {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
     flex: 1; align-content: start;
   }
   .sc-block {
-    padding: 6px 9px; background: #f8fafc; border-radius: 5px; border: 1px solid #e2e8f0;
+    padding: 8px 10px; background: #f8fafc; border-radius: 5px; border: 1px solid #e2e8f0;
   }
   .sc-block h4 {
     font-size: 9.5px; color: #64748b; margin-bottom: 4px; font-weight: 700;
     letter-spacing: 0.04em;
   }
-  .sc-row { display: flex; justify-content: space-between; padding: 1.5px 0; font-size: 10px; }
+  .sc-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 10px; }
   .sc-row .lab { color: #475569; }
   .sc-row .val { font-weight: 700; color: #0f172a; font-variant-numeric: tabular-nums; }
   .sc-highlight {
-    padding: 7px 10px; border-radius: 5px;
+    padding: 10px 12px; border-radius: 5px;
     border: 1px solid #e2e8f0; background: #f8fafc;
     display: flex; justify-content: space-between; align-items: center;
   }
@@ -284,7 +284,7 @@
   /* YoY row inside main table */
   tbody tr.yoy-row { background: #fafbfc; }
   tbody tr.yoy-row td {
-    font-size: 9px; padding: 2px 4px; font-weight: 600;
+    font-size: 9px; padding: 3px 4px; font-weight: 600;
     border-bottom: 1px solid #e2e8f0;
   }
   tbody tr.yoy-row td.left { color: #94a3b8; font-weight: 700; font-size: 9px; }
@@ -292,7 +292,7 @@
   /* ===== Footer ===== */
   footer {
     display: flex; justify-content: space-between; align-items: center;
-    font-size: 9.5px; color: #94a3b8; padding: 0 4px;
+    font-size: 9.5px; color: #94a3b8; padding: 2px 4px 0;
   }
 </style>
 </head>
