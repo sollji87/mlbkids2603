@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>MLB KIDS 시즌별 판매·재고 회수 현황 (26.03 기준)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body {
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+    background: #f5f6f8;
+    color: #1a1f2c;
+    font-size: 11px;
+    letter-spacing: -0.01em;
+  }
+
+  /* ===== Layout (fit-to-viewport) ===== */
+  .dashboard {
+    display: grid;
+    grid-template-rows: 44px 74px 1fr;
+    gap: 10px;
+    height: 100vh;
+    width: 100vw;
+    padding: 10px 14px;
+  }
+  .main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    gap: 10px;
+    overflow: hidden;
+  }
+  .right-stack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+    overflow: hidden;
+  }
+  .panel.p-action { grid-column: 1 / -1; }
+
+  /* ===== Header ===== */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    border-left: 4px solid #1e40af; padding-left: 12px;
+  }
+  header h1 {
+    font-size: 17px; font-weight: 800; color: #0f172a;
+    letter-spacing: -0.02em;
+  }
+  header .meta {
+    display: flex; gap: 14px; align-items: center;
+    font-size: 10.5px; color: #64748b;
+  }
+  header .meta b { color: #334155; }
+  header .badge {
+    background: #1e40af; color: #fff; padding: 3px 10px;
+    border-radius: 20px; font-size: 10px; font-weight: 700;
+  }
+
+  /* ===== KPI Cards ===== */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .kpi {
+    background: #ffffff; border-radius: 8px; padding: 10px 14px;
+    border: 1px solid #e2e8f0;
+    display: grid; grid-template-columns: auto 1fr; gap: 12px;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+  .kpi-year {
+    font-size: 22px; font-weight: 900; color: #334155;
+    line-height: 1; letter-spacing: -0.03em;
+  }
+  .kpi-body { display: flex; flex-direction: column; gap: 2px; }
+  .kpi-label { font-size: 9.5px; color: #64748b; font-weight: 500; letter-spacing: 0.04em; }
+  .kpi-value { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; color: #0f172a; }
+  .kpi-sub { font-size: 10px; color: #64748b; }
+  .kpi-sub b { color: #0f172a; font-weight: 700; }
+  .pos { color: #1e40af; }
+  .neg { color: #dc2626; }
+
+  /* ===== Main Table Card ===== */
+  .main-card {
+    background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0;
+    padding: 10px 14px; display: flex; flex-direction: column;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); overflow: hidden;
+  }
+  .card-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0;
+  }
+  .card-head h2 {
+    font-size: 12.5px; font-weight: 700; color: #0f172a;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card-head h2::before {
+    content: ""; width: 3px; height: 12px; background: #1e40af; border-radius: 2px;
+  }
+  .card-head .legend {
+    font-size: 9.5px; color: #0f172a; display: flex; gap: 10px;
+  }
+  .card-head .legend span i {
+    font-style: normal; margin-right: 3px;
+  }
+  .card-head .legend .l-yr i { color: #93c5fd; }
+  .card-head .legend .l-pos i { color: #1e40af; }
+  .card-head .legend .l-neg i { color: #dc2626; }
+
+  /* ===== Data Table ===== */
+  .tbl-wrap { flex: 1; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 10.5px; table-layout: fixed; }
+  thead th {
+    background: #f1f5f9; color: #334155; padding: 5px 4px; text-align: center;
+    font-weight: 700; border-bottom: 2px solid #cbd5e1;
+    font-size: 10px; letter-spacing: -0.01em;
+  }
+  thead th.left { text-align: center; }
+  thead th small { font-weight: 500; color: #64748b; font-size: 9px; margin-left: 2px; }
+  thead th.two-line small { display: block; margin-left: 0; margin-top: 1px; }
+
+  /* ===== Highlighted Columns (직접이익=7th · 재고원가=10th · 갭=12th) ===== */
+  .main-card thead th:nth-child(7),
+  .main-card tbody td:nth-child(7),
+  .main-card thead th:nth-child(10),
+  .main-card tbody td:nth-child(10),
+  .main-card thead th:nth-child(12),
+  .main-card tbody td:nth-child(12) { background: #dbeafe; }
+  .main-card tbody tr.year-total td:nth-child(7),
+  .main-card tbody tr.year-total td:nth-child(10),
+  .main-card tbody tr.year-total td:nth-child(12) { background: #c7d2fe; }
+
+  /* Table footnote */
+  .table-foot-note {
+    margin-top: 6px; font-size: 9.5px; color: #334155;
+    padding: 5px 10px; background: #f8fafc; border-radius: 4px;
+    border: 1px solid #e2e8f0;
+    display: flex; gap: 14px;
+  }
+  .table-foot-note b { color: #0f172a; margin-right: 3px; }
+  tbody td {
+    padding: 4px 4px; text-align: right; border-bottom: 1px solid #f1f5f9;
+    color: #1e293b; font-variant-numeric: tabular-nums;
+  }
+  tbody td.left { text-align: left; font-weight: 600; color: #0f172a; }
+  tbody tr:hover { background: #f8fafc; }
+  tbody tr.year-total {
+    background: #eef2ff; font-weight: 800;
+  }
+  tbody tr.year-total td {
+    border-top: 1.5px solid #93c5fd; border-bottom: 1.5px solid #93c5fd;
+    color: #0f172a;
+  }
+  tbody tr.year-total td.hl-profit { color: #0f172a; }
+  tbody tr.year-total td.b-pos { color: #1e40af; }
+  tbody tr.year-total td.b-neg { color: #dc2626; }
+
+  /* Projection row (26년 예상) */
+  tbody tr.proj-row { background: #eef4ff; }
+  tbody tr.proj-row td {
+    border-top: 2px solid #1e40af; border-bottom: 2px solid #1e40af;
+    color: #1e3a8a; font-weight: 700;
+  }
+  tbody tr.proj-row td.b-pos { color: #1e40af; }
+  tbody tr.proj-row td.b-neg { color: #dc2626; }
+  tbody tr.proj-row td.left { white-space: nowrap; font-size: 9.5px; }
+  .hl-profit { color: #0f172a; font-weight: 700; }
+  .b-pos { color: #1e40af; font-weight: 700; }
+  .b-neg { color: #dc2626; font-weight: 700; }
+
+  .panel {
+    background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0;
+    padding: 10px 14px; display: flex; flex-direction: column;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); overflow: hidden;
+  }
+  .panel h3 {
+    font-size: 12px; font-weight: 700; color: #0f172a;
+    margin-bottom: 6px; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .panel h3::before {
+    content: ""; width: 3px; height: 11px; border-radius: 2px;
+    background: #1e40af;
+  }
+
+  .panel table { font-size: 10.5px; }
+  .panel table thead th { padding: 4px 4px; font-size: 10px; }
+  .panel table tbody td { padding: 4px 4px; }
+  .panel .note { font-size: 9.5px; color: #94a3b8; margin-top: 6px; line-height: 1.4; }
+
+  /* Insight list */
+  .insight-list {
+    list-style: none; display: flex; flex-direction: column; gap: 3px;
+    overflow: auto; flex: 1;
+  }
+  .insight-list li {
+    padding: 3px 6px; font-size: 9.8px; line-height: 1.3;
+    background: #f8fafc; border-left: 2.5px solid #cbd5e1; border-radius: 2px;
+    color: #334155;
+  }
+  .insight-list li b { color: #0f172a; }
+  .insight-list li:focus { outline: 1.5px solid #1e40af; outline-offset: -1px; background: #fff; }
+  .insight-list li:empty { display: none; }
+  .add-insight-btn {
+    float: right; border: none; background: #dbeafe; color: #1e40af;
+    width: 18px; height: 18px; border-radius: 50%; cursor: pointer;
+    font-size: 13px; font-weight: 800; line-height: 16px; text-align: center;
+    font-family: inherit;
+  }
+  .add-insight-btn:hover { background: #1e40af; color: #fff; }
+
+  /* Scenario Tabs */
+  .scenario-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 7px; }
+  .stab {
+    padding: 5px 6px; border: 1px solid #e2e8f0;
+    background: #f8fafc; border-radius: 5px; cursor: pointer;
+    font-family: inherit;
+    display: grid; grid-template-columns: 1fr auto; gap: 2px 6px;
+    align-items: center; text-align: left;
+    transition: all .12s ease;
+  }
+  .stab .stab-head { font-size: 10.5px; font-weight: 800; color: #475569; }
+  .stab .stab-sub  { font-size: 9px; font-weight: 600; color: #64748b; grid-column: 1 / -1; }
+  .stab .stab-yoy  {
+    font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 8px;
+    background: #e2e8f0; color: #475569;
+    font-variant-numeric: tabular-nums;
+  }
+  .stab .stab-yoy.pos { background: #dbeafe; color: #1e40af; }
+  .stab .stab-yoy.neg { background: #fee2e2; color: #b91c1c; }
+  .stab.active { background: #1e40af; border-color: #1e40af; }
+  .stab.active .stab-head { color: #fff; }
+  .stab.active .stab-sub  { color: #bfdbfe; }
+  .stab.active .stab-yoy.pos { background: #1e3a8a; color: #dbeafe; }
+  .stab.active .stab-yoy.neg { background: #b91c1c; color: #fef2f2; }
+  .stab:hover:not(.active) { background: #eff6ff; border-color: #bfdbfe; }
+
+  /* Scenario Body */
+  .scenario-body {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+    flex: 1; align-content: start;
+  }
+  .sc-block {
+    padding: 6px 9px; background: #f8fafc; border-radius: 5px; border: 1px solid #e2e8f0;
+  }
+  .sc-block h4 {
+    font-size: 9.5px; color: #64748b; margin-bottom: 4px; font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .sc-row { display: flex; justify-content: space-between; padding: 1.5px 0; font-size: 10px; }
+  .sc-row .lab { color: #475569; }
+  .sc-row .val { font-weight: 700; color: #0f172a; font-variant-numeric: tabular-nums; }
+  .sc-highlight {
+    padding: 7px 10px; border-radius: 5px;
+    border: 1px solid #e2e8f0; background: #f8fafc;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .sc-highlight.pos { background: #eff6ff; border-color: #bfdbfe; }
+  .sc-highlight.neg { background: #fef2f2; border-color: #fecaca; }
+  .sc-highlight .lab { font-size: 10.5px; color: #334155; font-weight: 700; }
+  .sc-highlight .lab small { display: block; font-size: 9.5px; color: #64748b; font-weight: 500; margin-top: 1px; }
+  .sc-highlight .val { font-size: 17px; font-weight: 900; font-variant-numeric: tabular-nums; }
+  .sc-highlight.pos .val { color: #1e40af; }
+  .sc-highlight.neg .val { color: #dc2626; }
+  .sc-row input[type="number"] {
+    width: 72px; padding: 1px 5px; border: 1px solid #bfdbfe;
+    border-radius: 3px; font-size: 10.5px; font-weight: 700;
+    text-align: right; font-family: inherit; color: #1e40af;
+    background: #eff6ff;
+  }
+  .sc-row input:focus { outline: 2px solid #1e40af; outline-offset: -1px; border-color: #1e40af; background: #fff; }
+  .edit-hint { font-size: 9px; color: #1e40af; font-weight: 700; margin-left: 3px; }
+  .sc-row.sc-total { border-top: 1px solid #cbd5e1; padding-top: 3px; margin-top: 3px; }
+  .sc-row.sc-total .lab { font-weight: 700; }
+  .sc-row.sc-total .val { color: #1e40af; font-weight: 800; font-size: 11px; }
+  .sc-fix .val { color: #334155; }
+  .sc-fix .lab small { color: #94a3b8; margin-left: 3px; font-size: 9px; }
+  .yoy-in {
+    display: inline-block; font-size: 9px; padding: 1px 5px; border-radius: 8px;
+    background: #e2e8f0; color: #475569; font-weight: 700;
+    margin-left: 5px; font-variant-numeric: tabular-nums;
+  }
+  .yoy-in.pos { background: #dbeafe; color: #1e40af; }
+  .yoy-in.neg { background: #fee2e2; color: #b91c1c; }
+
+  /* YoY row inside main table */
+  tbody tr.yoy-row { background: #fafbfc; }
+  tbody tr.yoy-row td {
+    font-size: 9px; padding: 2px 4px; font-weight: 600;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  tbody tr.yoy-row td.left { color: #94a3b8; font-weight: 700; font-size: 9px; }
+
+  /* ===== Footer ===== */
+  footer {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 9.5px; color: #94a3b8; padding: 0 4px;
+  }
+</style>
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- ===== Header ===== -->
+  <header>
+    <div>
+      <h1>MLB KIDS 시즌별 판매·재고 회수 현황</h1>
+    </div>
+    <div class="meta">
+      <span class="badge">기준월 2026.03</span>
+    </div>
+  </header>
+
+  <!-- ===== KPI Row ===== -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-year">'22</div>
+      <div class="kpi-body">
+        <div class="kpi-label">당시즌판매기준 영업이익</div>
+        <div class="kpi-value pos">+51.6억</div>
+        <div class="kpi-sub">과시즌포함 영업이익 <b class="pos">+66.7억</b></div>
+      </div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-year">'23</div>
+      <div class="kpi-body">
+        <div class="kpi-label">당시즌판매기준 영업이익</div>
+        <div class="kpi-value pos">+21.2억</div>
+        <div class="kpi-sub">과시즌포함 영업이익 <b class="pos">+39.9억</b></div>
+      </div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-year">'24</div>
+      <div class="kpi-body">
+        <div class="kpi-label">당시즌판매기준 영업이익</div>
+        <div class="kpi-value neg">−23.8억</div>
+        <div class="kpi-sub">과시즌포함 영업이익 <b class="neg">−20.8억</b></div>
+      </div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-year">'25</div>
+      <div class="kpi-body">
+        <div class="kpi-label">당시즌판매기준 영업이익</div>
+        <div class="kpi-value neg">−33.3억</div>
+        <div class="kpi-sub">과시즌포함 영업이익 <b class="neg">−46.1억</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Main Grid (Left Table / Right Panels) ===== -->
+  <div class="main-grid">
+
+  <!-- ===== Main Table ===== -->
+  <section class="main-card">
+    <div class="card-head">
+      <h2>시즌별 손익 · 재고 · 판매율 통합표</h2>
+      <div class="legend">
+        <span class="l-yr"><i>■</i>연도 합계</span>
+        <span class="l-pos"><i>■</i>현금회수 흑자</span>
+        <span class="l-neg"><i>■</i>현금회수 적자</span>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <colgroup>
+          <col style="width: 6%"><col style="width: 7.5%"><col style="width: 7.5%">
+          <col style="width: 7.5%"><col style="width: 6.5%"><col style="width: 7.5%">
+          <col style="width: 8%"><col style="width: 6%"><col style="width: 8%">
+          <col style="width: 8%"><col style="width: 6%"><col style="width: 8%">
+          <col style="width: 7.5%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="left">시즌</th>
+            <th>택매출<small>V+</small></th>
+            <th>실판<small>V+</small></th>
+            <th>매출원가</th>
+            <th class="two-line">원가율<small>(택대비)</small></th>
+            <th>직접비</th>
+            <th class="col-profit">직접이익<small>A</small></th>
+            <th>이익률</th>
+            <th class="two-line">재고택가<small>(시즌말)</small></th>
+            <th class="two-line">재고원가<small>(시즌말·B)</small></th>
+            <th>판매율</th>
+            <th class="col-gap">갭<small>A−B</small></th>
+            <th>재고택가<small>26.03</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="left">22S</td><td>231.1</td><td>226.3</td><td>46.7</td><td>22.2%</td><td>44.8</td><td class="hl-profit">51.9</td><td>25.2%</td><td>156.7</td><td>31.4</td><td>59.6%</td><td class="b-pos">+20.4</td><td>0.1</td></tr>
+          <tr><td class="left">22F</td><td>281.6</td><td>275.2</td><td>65.2</td><td>25.5%</td><td>47.1</td><td class="hl-profit">60.5</td><td>24.2%</td><td>229.6</td><td>51.9</td><td>55.1%</td><td class="b-pos">+8.6</td><td>0.6</td></tr>
+          <tr><td class="left">22N</td><td>182.3</td><td>178.8</td><td>41.5</td><td>25.0%</td><td>35.3</td><td class="hl-profit">35.5</td><td>21.8%</td><td>77.7</td><td>16.9</td><td>70.1%</td><td class="b-pos">+18.6</td><td>1.4</td></tr>
+          <tr class="year-total"><td class="left">22년</td><td>695.0</td><td>680.3</td><td>153.4</td><td>24.3%</td><td>127.1</td><td>147.8</td><td>23.9%</td><td>463.9</td><td>100.2</td><td>60.0%</td><td class="b-pos">+47.6</td><td>2.0</td></tr>
+          <tr><td class="left">23S</td><td>246.2</td><td>240.1</td><td>56.0</td><td>25.0%</td><td>48.7</td><td class="hl-profit">48.3</td><td>22.1%</td><td>221.6</td><td>51.2</td><td>52.6%</td><td class="b-neg">−2.9</td><td>9.3</td></tr>
+          <tr><td class="left">23F</td><td>253.1</td><td>240.4</td><td>58.4</td><td>25.4%</td><td>47.7</td><td class="hl-profit">49.8</td><td>22.8%</td><td>305.0</td><td>68.4</td><td>45.4%</td><td class="b-neg">−18.6</td><td>−0.2</td></tr>
+          <tr><td class="left">23N</td><td>191.8</td><td>186.7</td><td>45.1</td><td>25.9%</td><td>37.4</td><td class="hl-profit">35.8</td><td>21.1%</td><td>136.8</td><td>51.1</td><td>58.4%</td><td class="b-neg">−15.3</td><td>4.0</td></tr>
+          <tr class="year-total"><td class="left">23년</td><td>691.1</td><td>667.2</td><td>159.5</td><td>25.4%</td><td>133.8</td><td>133.9</td><td>22.1%</td><td>663.4</td><td>170.6</td><td>51.0%</td><td class="b-neg">−36.8</td><td>13.1</td></tr>
+          <tr class="yoy-row"><td class="left">YoY</td><td class="b-neg">−0.6%</td><td class="b-neg">−1.9%</td><td class="b-pos">+4.0%</td><td class="b-pos">+1.1%p</td><td class="b-pos">+5.2%</td><td class="b-neg">−9.4%</td><td class="b-neg">−1.8%p</td><td class="b-pos">+43.0%</td><td class="b-pos">+70.3%</td><td class="b-neg">−9.0%p</td><td class="b-neg">−84.4</td><td>—</td></tr>
+          <tr><td class="left">24S</td><td>213.7</td><td>203.7</td><td>47.1</td><td>24.3%</td><td>46.9</td><td class="hl-profit">40.2</td><td>21.7%</td><td>232.4</td><td>51.0</td><td>47.9%</td><td class="b-neg">−10.8</td><td>25.8</td></tr>
+          <tr><td class="left">24F</td><td>205.0</td><td>197.1</td><td>52.1</td><td>28.0%</td><td>42.6</td><td class="hl-profit">35.5</td><td>19.8%</td><td>238.0</td><td>58.2</td><td>46.3%</td><td class="b-neg">−22.7</td><td>46.0</td></tr>
+          <tr><td class="left">24N</td><td>183.2</td><td>176.0</td><td>43.8</td><td>26.3%</td><td>38.2</td><td class="hl-profit">29.8</td><td>18.6%</td><td>131.8</td><td>31.2</td><td>58.2%</td><td class="b-neg">−1.4</td><td>36.0</td></tr>
+          <tr class="year-total"><td class="left">24년</td><td>601.9</td><td>576.9</td><td>143.0</td><td>26.1%</td><td>127.7</td><td>105.5</td><td>20.1%</td><td>602.2</td><td>140.4</td><td>50.0%</td><td class="b-neg">−34.9</td><td>107.9</td></tr>
+          <tr class="yoy-row"><td class="left">YoY</td><td class="b-neg">−12.9%</td><td class="b-neg">−13.5%</td><td class="b-neg">−10.4%</td><td class="b-pos">+0.7%p</td><td class="b-neg">−4.5%</td><td class="b-neg">−21.2%</td><td class="b-neg">−2.0%p</td><td class="b-neg">−9.2%</td><td class="b-neg">−17.7%</td><td class="b-neg">−1.0%p</td><td class="b-pos">+1.9</td><td>—</td></tr>
+          <tr><td class="left">25S</td><td>203.4</td><td>197.8</td><td>49.7</td><td>26.9%</td><td>49.7</td><td class="hl-profit">34.1</td><td>19.0%</td><td>241.7</td><td>57.5</td><td>45.7%</td><td class="b-neg">−23.3</td><td>118.5</td></tr>
+          <tr><td class="left">25F</td><td>203.6</td><td>194.0</td><td>52.1</td><td>28.1%</td><td>45.7</td><td class="hl-profit">34.9</td><td>19.8%</td><td>254.3</td><td>65.0</td><td>44.5%</td><td class="b-neg">−30.1</td><td>254.3</td></tr>
+          <tr><td class="left">25N</td><td>195.9</td><td>185.8</td><td>47.6</td><td>26.7%</td><td>40.0</td><td class="hl-profit">28.3</td><td>16.8%</td><td>164.8</td><td>40.6</td><td>54.3%</td><td class="b-neg">−12.3</td><td>129.1</td></tr>
+          <tr class="year-total"><td class="left">25년</td><td>602.9</td><td>577.5</td><td>149.4</td><td>27.2%</td><td>135.3</td><td>97.4</td><td>18.6%</td><td>660.8</td><td>163.1</td><td>47.7%</td><td class="b-neg">−65.7</td><td>501.9</td></tr>
+          <tr class="yoy-row"><td class="left">YoY</td><td class="b-pos">+0.2%</td><td class="b-pos">+0.1%</td><td class="b-pos">+4.4%</td><td class="b-pos">+1.1%p</td><td class="b-pos">+6.0%</td><td class="b-neg">−7.7%</td><td class="b-neg">−1.5%p</td><td class="b-pos">+9.7%</td><td class="b-pos">+16.2%</td><td class="b-neg">−2.3%p</td><td class="b-neg">−30.9</td><td>—</td></tr>
+          <tr class="proj-row">
+            <td class="left" id="pr-opt">26년 예상(A)</td>
+            <td id="pr-tag">—</td>
+            <td id="pr-netp">—</td>
+            <td id="pr-cogs">—</td>
+            <td id="pr-cogsr">—</td>
+            <td id="pr-opex">—</td>
+            <td id="pr-profit">—</td>
+            <td id="pr-margin">—</td>
+            <td id="pr-stock">—</td>
+            <td id="pr-stockc">—</td>
+            <td id="pr-rate">—</td>
+            <td id="pr-gap">—</td>
+            <td>—</td>
+          </tr>
+          <tr class="yoy-row" id="proj-yoy-row">
+            <td class="left">YoY</td>
+            <td id="py-tag">—</td>
+            <td id="py-netp">—</td>
+            <td id="py-cogs">—</td>
+            <td id="py-cogsr">—</td>
+            <td id="py-opex">—</td>
+            <td id="py-profit">—</td>
+            <td id="py-margin">—</td>
+            <td id="py-stock">—</td>
+            <td id="py-stockc">—</td>
+            <td id="py-rate">—</td>
+            <td id="py-gap">—</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="table-foot-note">
+      <span><b>▪ SS</b> 3~9월 판매</span>
+      <span><b>▪ FW</b> 9~3월 판매</span>
+      <span><b>▪ NON</b> 1~12월 판매 가정</span>
+    </div>
+  </section>
+
+  <!-- ===== Right Stack ===== -->
+  <div class="right-stack">
+
+    <!-- BEP 판매율 -->
+    <div class="panel p-bep">
+      <h3>영업비 커버 BEP 판매율</h3>
+      <table>
+        <thead>
+          <tr><th class="left">연도</th><th>BEP</th><th>실제</th><th>갭(%p)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="left">23년</td><td class="hl-profit">42.9%</td><td>51.0%</td><td class="b-pos">+8.1</td></tr>
+          <tr><td class="left">24년</td><td class="hl-profit">61.3%</td><td>50.0%</td><td class="b-neg">−11.3</td></tr>
+          <tr><td class="left">25년</td><td class="hl-profit">63.9%</td><td>47.7%</td><td class="b-neg">−16.2</td></tr>
+        </tbody>
+      </table>
+      <div class="note">
+        <b>BEP = 영업비 ÷ (실판V− × 직접이익률)</b><br>
+        25년은 재고감축과 판매율 +16%p 개선 동시 필요
+      </div>
+    </div>
+
+    <!-- 핵심 인사이트 -->
+    <div class="panel p-insight">
+      <h3>핵심 인사이트 <button class="add-insight-btn" onclick="addInsight()" title="항목 추가">+</button></h3>
+      <ul class="insight-list" id="insight-list">
+        <li contenteditable="true"><b>22년만 시즌말 현금회수 흑자</b> (+47.6억) — 23S부터 적자전환</li>
+        <li contenteditable="true"><b>25년 시즌말 갭 −65.7억</b>, 누적 최대치 기록</li>
+        <li contenteditable="true"><b>판매율 지속 하락</b>: '22 60.0% → '25 47.7% (−12.3%p)</li>
+        <li contenteditable="true"><b>직접이익률 하락</b>: 23.9% → 18.6% (−5.3%p)</li>
+        <li contenteditable="true"><b>재고 급증</b>: '24 602.2억 → '25 660.8억 (시즌말 택가)</li>
+        <li contenteditable="true"><b>N시즌이 S/F 대비 양호</b> (12개월 긴 판매기간 효과)</li>
+      </ul>
+    </div>
+
+    <!-- 액션 플랜 -->
+    <div class="panel p-action">
+      <h3>26년 회복 시나리오 · 당시즌판매 기준 예상</h3>
+      <div class="scenario-tabs">
+        <button class="stab active" data-s="A">
+          <span class="stab-head">Option A</span>
+          <span class="stab-yoy" id="yoy-A">—</span>
+          <span class="stab-sub">판매율↑</span>
+        </button>
+        <button class="stab" data-s="B">
+          <span class="stab-head">Option B</span>
+          <span class="stab-yoy" id="yoy-B">—</span>
+          <span class="stab-sub">발주↓20%</span>
+        </button>
+        <button class="stab" data-s="C">
+          <span class="stab-head">Option C</span>
+          <span class="stab-yoy" id="yoy-C">—</span>
+          <span class="stab-sub">복합개선</span>
+        </button>
+        <button class="stab" data-s="D">
+          <span class="stab-head">Option D</span>
+          <span class="stab-yoy" id="yoy-D">—</span>
+          <span class="stab-sub">흑자전환</span>
+        </button>
+      </div>
+      <div id="scenario-body" class="scenario-body">
+        <div class="sc-block">
+          <h4>26년 발주 (한국 PO)</h4>
+          <div class="sc-row sc-fix"><span class="lab">26S <small>확정</small></span><span class="val">456.7억 <span class="yoy-in neg">−6.5%</span></span></div>
+          <div class="sc-row sc-fix"><span class="lab">26N 확정분</span><span class="val">289.1억</span></div>
+          <div class="sc-row"><span class="lab">26N 잔여 <small class="edit-hint">편집</small></span><span class="val"><input type="number" id="inp-26n" value="176.1" step="10"> 억</span></div>
+          <div class="sc-row sc-fix"><span class="lab">└ 26N 합계</span><span class="val"><span id="out-26n-total">—</span> <span class="yoy-in" id="out-26n-yoy">—</span></span></div>
+          <div class="sc-row"><span class="lab">26F 발주 <small class="edit-hint">편집</small></span><span class="val"><input type="number" id="inp-26f" value="475.5" step="10"> 억 <span class="yoy-in" id="out-26f-yoy">—</span></span></div>
+          <div class="sc-row sc-total"><span class="lab">총 26년 신규입고</span><span class="val"><span id="out-total">—</span> <span class="yoy-in" id="out-total-yoy">—</span></span></div>
+        </div>
+        <div class="sc-block">
+          <h4>가정 & 26년 예상</h4>
+          <div class="sc-row"><span class="lab">판매율 <small class="edit-hint">편집</small></span><span class="val"><input type="number" id="inp-rate" value="63.9" step="1" min="0" max="100"> %</span></div>
+          <div class="sc-row sc-fix"><span class="lab">이익률 <small id="margin-note">(25년 수준 가정)</small></span><span class="val" id="out-margin">—</span></div>
+          <div class="sc-row sc-fix"><span class="lab">영업비 <small>(25년 수준 가정)</small></span><span class="val">130.7억</span></div>
+          <div class="sc-row"><span class="lab">실판매출(V+)</span><span class="val"><span id="out-netp">—</span><span class="yoy-in" id="out-netp-yoy">—</span></span></div>
+          <div class="sc-row"><span class="lab">직접이익(A)</span><span class="val"><span id="out-profit">—</span><span class="yoy-in" id="out-profit-yoy">—</span></span></div>
+          <div class="sc-row"><span class="lab">시즌말 재고택가</span><span class="val"><span id="out-stock">—</span><span class="yoy-in" id="out-stock-yoy">—</span></span></div>
+        </div>
+        <div class="sc-highlight" id="sc-op-hl">
+          <div class="lab">26년 영업이익<small id="out-op-yoy">—</small></div>
+          <div class="val" id="out-op">—</div>
+        </div>
+        <div class="sc-highlight" id="sc-cash-hl">
+          <div class="lab">26년 현금회수 (A−B)<small id="out-cash-yoy">—</small></div>
+          <div class="val" id="out-cash">—</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+
+  <!-- ===== Footer ===== -->
+  <footer></footer>
+
+</div>
+
+<script>
+  // ===== 25년 실적 (한국·당시즌 기준, 참조값) =====
+  const DATA25 = {
+    netp:  577.5,   // 25년 실판V+
+    profit: 97.4,   // 25년 직접이익
+    stock: 660.8,   // 25년 시즌말 재고택가
+    op:   -33.3,    // 25년 영업이익 (당시즌판매)
+    cash: -65.7     // 25년 현금회수 (A-B)
+  };
+  // 25년 실적 기반 파생 비율 (26년 추정용)
+  const RATIO = {
+    netpV: 0.958,        // 실판V+ ÷ 택매출V+
+    netV:  0.87,         // 실판V− ÷ 택매출V+
+    cogsRateV: 0.2845,   // 매출원가 ÷ 실판V−
+    opexRateV: 0.258,    // 직접비 ÷ 실판V−
+    stockCostRate: 0.247 // 재고원가 ÷ 재고택가
+  };
+  const FIX_26S = 456.7;   // 26S 확정 (한국 PO)
+  const FIX_26N = 289.1;   // 26N 확정분 (한국 PO, 현재)
+  const OPEX = 130.7;      // 영업비 (25년 수준 동결)
+  const REF25 = { s: 488.7, n: 465.3, f: 475.5, total: 1429.5 }; // 25년 시즌별 한국 발주
+  // 25년 합계 테이블 값 (proj YoY 비교용)
+  const Y25 = {
+    tag: 602.9, netp: 577.5, cogs: 149.4, cogsr: 27.2,
+    opex: 135.3, profit: 97.4, margin: 18.6,
+    stock: 660.8, stockc: 163.1, rate: 47.7, gap: -65.7
+  };
+  const scenarios = {
+    A: { rate: 63.9, margin: 18.6, mNote: '25년 수준 가정', n26n: 176.2, n26f: 475.5 },
+    B: { rate: 47.7, margin: 18.6, mNote: '25년 수준 가정', n26n: 141.0,  n26f: 380.4 },
+    C: { rate: 60.0, margin: 18.6, mNote: '25년 수준 가정', n26n: 176.2, n26f: 300.0 },
+    D: { rate: 60.0, margin: 20.1, mNote: '24년 수준 가정', n26n: 176.2, n26f: 475.5 }
+  };
+  let currentKey = 'A';
+
+  // ===== Formatters =====
+  function fmtN(n, d) {
+    d = (d == null) ? 1 : d;
+    const sign = n < 0 ? '−' : '';
+    const parts = Math.abs(n).toFixed(d).split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return sign + parts.join('.');
+  }
+  function fmt(n, d)  { return fmtN(n, d) + '억'; }
+  function fmtS(n)    { return (n > 0 ? '+' : n < 0 ? '−' : '') + fmtN(Math.abs(n), 1) + '억'; }
+  function setYoY(id, cur, ref) {
+    const pct = (cur - ref) / ref * 100;
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = (pct > 0 ? '+' : pct < 0 ? '−' : '') + Math.abs(pct).toFixed(1) + '%';
+    el.className = 'yoy-in ' + (pct > 0.05 ? 'pos' : pct < -0.05 ? 'neg' : '');
+  }
+
+  // ===== Core calc =====
+  function calc(input, opt) {
+    const tag = input * (opt.rate / 100);
+    const net = tag * RATIO.netV;
+    const profit = net * (opt.margin / 100);
+    const op = profit - OPEX;
+    const stock = input * (1 - opt.rate / 100);
+    const stockCost = stock * RATIO.stockCostRate;
+    const cash = profit - stockCost;
+    return { tag, net, profit, op, stock, stockCost, cash };
+  }
+
+  function updateProjRow(key, input, opt, r) {
+    const netp   = r.tag * RATIO.netpV;
+    const cogs   = r.net * RATIO.cogsRateV;
+    const cogsR  = cogs / r.tag * 100;
+    const opex   = r.net * RATIO.opexRateV;
+
+    document.getElementById('pr-opt').textContent     = '26년 예상(' + key + ')';
+    document.getElementById('pr-tag').textContent     = fmtN(r.tag);
+    document.getElementById('pr-netp').textContent    = fmtN(netp);
+    document.getElementById('pr-cogs').textContent    = fmtN(cogs);
+    document.getElementById('pr-cogsr').textContent   = cogsR.toFixed(1) + '%';
+    document.getElementById('pr-opex').textContent    = fmtN(opex);
+    document.getElementById('pr-profit').textContent  = fmtN(r.profit);
+    document.getElementById('pr-margin').textContent  = opt.margin.toFixed(1) + '%';
+    document.getElementById('pr-stock').textContent   = fmtN(r.stock);
+    document.getElementById('pr-stockc').textContent  = fmtN(r.stockCost);
+    document.getElementById('pr-rate').textContent    = opt.rate.toFixed(1) + '%';
+    const gapEl = document.getElementById('pr-gap');
+    gapEl.textContent = (r.cash >= 0 ? '+' : '−') + fmtN(Math.abs(r.cash));
+    gapEl.className = r.cash >= 0 ? 'b-pos' : 'b-neg';
+
+    // 26년 예상 YoY row
+    function yPct(id, cur, ref) {
+      var el = document.getElementById(id); if (!el) return;
+      var p = (cur - ref) / Math.abs(ref) * 100;
+      el.textContent = (p > 0 ? '+' : p < 0 ? '−' : '') + Math.abs(p).toFixed(1) + '%';
+      el.className = p > 0.05 ? 'b-pos' : p < -0.05 ? 'b-neg' : '';
+    }
+    function yPp(id, cur, ref) {
+      var el = document.getElementById(id); if (!el) return;
+      var d = cur - ref;
+      el.textContent = (d > 0 ? '+' : d < 0 ? '−' : '') + Math.abs(d).toFixed(1) + '%p';
+      el.className = d > 0.05 ? 'b-pos' : d < -0.05 ? 'b-neg' : '';
+    }
+    function yDelta(id, cur, ref) {
+      var el = document.getElementById(id); if (!el) return;
+      var d = cur - ref;
+      el.textContent = (d > 0 ? '+' : d < 0 ? '−' : '') + fmtN(Math.abs(d));
+      el.className = d > 0.05 ? 'b-pos' : d < -0.05 ? 'b-neg' : '';
+    }
+    yPct('py-tag',   r.tag,   Y25.tag);
+    yPct('py-netp',  netp,    Y25.netp);
+    yPct('py-cogs',  cogs,    Y25.cogs);
+    yPp('py-cogsr',  cogsR,   Y25.cogsr);
+    yPct('py-opex',  opex,    Y25.opex);
+    yPct('py-profit', r.profit, Y25.profit);
+    yPp('py-margin', opt.margin, Y25.margin);
+    yPct('py-stock', r.stock, Y25.stock);
+    yPct('py-stockc', r.stockCost, Y25.stockc);
+    yPp('py-rate',   opt.rate, Y25.rate);
+    yDelta('py-gap', r.cash,  Y25.gap);
+  }
+
+  function recalc() {
+    const inp26n = parseFloat(document.getElementById('inp-26n').value) || 0;
+    const inp26f = parseFloat(document.getElementById('inp-26f').value) || 0;
+    const total = FIX_26S + FIX_26N + inp26n + inp26f;
+    const opt = { ...scenarios[currentKey] };
+    opt.rate = parseFloat(document.getElementById('inp-rate').value) || opt.rate;
+    const r = calc(total, opt);
+
+    const netp = r.tag * RATIO.netpV;
+
+    const total26n = FIX_26N + inp26n;
+    document.getElementById('out-26n-total').textContent = fmt(total26n);
+    setYoY('out-26n-yoy', total26n, REF25.n);
+    setYoY('out-26f-yoy', inp26f, REF25.f);
+    document.getElementById('out-total').textContent  = fmt(total);
+    setYoY('out-total-yoy', total, REF25.total);
+    document.getElementById('out-margin').textContent = opt.margin.toFixed(1) + '%';
+    document.getElementById('margin-note').textContent = '(' + opt.mNote + ')';
+    document.getElementById('out-netp').textContent   = fmt(netp);
+    document.getElementById('out-profit').textContent = fmt(r.profit);
+    document.getElementById('out-stock').textContent  = fmt(r.stock);
+
+    // YoY badges (전년비 %)
+    setYoY('out-netp-yoy',   netp,    DATA25.netp);
+    setYoY('out-profit-yoy', r.profit, DATA25.profit);
+    setYoY('out-stock-yoy',  r.stock, DATA25.stock);
+
+    const opYoy = r.op - DATA25.op;
+    const cashYoy = r.cash - DATA25.cash;
+    const opCls   = r.op > 0.05 ? 'pos' : r.op < -0.05 ? 'neg' : '';
+    const cashCls = r.cash > 0.05 ? 'pos' : r.cash < -0.05 ? 'neg' : '';
+    document.getElementById('sc-op-hl').className   = 'sc-highlight ' + opCls;
+    document.getElementById('sc-cash-hl').className = 'sc-highlight ' + cashCls;
+    document.getElementById('out-op').textContent       = fmtS(r.op);
+    document.getElementById('out-cash').textContent     = fmtS(r.cash);
+    document.getElementById('out-op-yoy').textContent   = 'YoY vs 25년 ' + fmtS(opYoy);
+    document.getElementById('out-cash-yoy').textContent = 'YoY vs 25년 ' + fmtS(cashYoy);
+
+    // Update all tab YOY badges (영업이익 기준)
+    Object.keys(scenarios).forEach(k => {
+      const o = scenarios[k];
+      const rk = calc(total, o);
+      const yoy = rk.op - DATA25.op;
+      const el = document.getElementById('yoy-' + k);
+      if (el) {
+        el.textContent = fmtS(yoy);
+        el.className = 'stab-yoy ' + (yoy > 0.05 ? 'pos' : yoy < -0.05 ? 'neg' : '');
+      }
+    });
+
+    updateProjRow(currentKey, total, opt, r);
+  }
+
+  document.querySelectorAll('.stab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.stab').forEach(x => x.classList.remove('active'));
+      btn.classList.add('active');
+      currentKey = btn.dataset.s;
+      const s = scenarios[currentKey];
+      document.getElementById('inp-26n').value  = s.n26n;
+      document.getElementById('inp-26f').value  = s.n26f;
+      document.getElementById('inp-rate').value = s.rate;
+      recalc();
+    });
+  });
+  document.getElementById('inp-26n').addEventListener('input', recalc);
+  document.getElementById('inp-26f').addEventListener('input', recalc);
+  document.getElementById('inp-rate').addEventListener('input', recalc);
+  recalc();
+
+  // ===== Insight 편집/추가/저장 =====
+  const INSIGHT_KEY = 'mlbkids-insights-v1';
+
+  function saveInsights() {
+    const items = [...document.querySelectorAll('#insight-list li')].map(li => li.innerHTML);
+    localStorage.setItem(INSIGHT_KEY, JSON.stringify(items));
+  }
+
+  function bindInsightEvents(li) {
+    li.contentEditable = 'true';
+    li.addEventListener('blur', function() {
+      if (!this.textContent.trim()) this.remove();
+      saveInsights();
+    });
+  }
+
+  function addInsight() {
+    const ul = document.getElementById('insight-list');
+    const li = document.createElement('li');
+    li.innerHTML = '새 인사이트 입력';
+    bindInsightEvents(li);
+    ul.appendChild(li);
+    li.focus();
+    document.execCommand('selectAll', false, null);
+  }
+
+  function loadInsights() {
+    const saved = localStorage.getItem(INSIGHT_KEY);
+    if (saved) {
+      const items = JSON.parse(saved);
+      const ul = document.getElementById('insight-list');
+      ul.innerHTML = '';
+      items.forEach(html => {
+        const li = document.createElement('li');
+        li.innerHTML = html;
+        bindInsightEvents(li);
+        ul.appendChild(li);
+      });
+    } else {
+      document.querySelectorAll('#insight-list li').forEach(bindInsightEvents);
+    }
+  }
+  loadInsights();
+</script>
+</body>
+</html>
