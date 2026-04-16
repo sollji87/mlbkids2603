@@ -6,7 +6,6 @@
 <title>MLB KIDS 시즌별 판매·재고 회수 현황 (26.03 기준)</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  :root { --ui-scale: 1; }
   html, body { width: 100%; height: 100%; overflow: hidden; }
   body {
     font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
@@ -17,22 +16,14 @@
   }
 
   /* ===== Layout (fit-to-viewport) ===== */
-  .viewport-shell {
-    width: 100vw;
-    height: 100vh;
-    height: 100dvh;
-    overflow: hidden;
-  }
   .dashboard {
     display: grid;
     grid-template-rows: 44px 74px 1fr;
     gap: 10px;
-    min-height: calc(100vh / var(--ui-scale));
-    min-height: calc(100dvh / var(--ui-scale));
-    width: calc(100% / var(--ui-scale));
+    min-height: 100vh;
+    min-height: 100dvh;
+    width: 100%;
     padding: 10px 14px;
-    transform: scale(var(--ui-scale));
-    transform-origin: top left;
   }
   .main-grid {
     display: grid;
@@ -308,7 +299,6 @@
 </style>
 </head>
 <body>
-<div class="viewport-shell">
 <div class="dashboard">
 
   <!-- ===== Header ===== -->
@@ -555,18 +545,6 @@
 </div>
 
 <script>
-  function applyDashboardScale() {
-    const baseWidth = 1600;
-    const baseHeight = 900;
-    const widthRatio = window.innerWidth / baseWidth;
-    const heightRatio = window.innerHeight / baseHeight;
-    const scale = Math.min(1.18, Math.max(1, Math.min(widthRatio, heightRatio)));
-    document.documentElement.style.setProperty('--ui-scale', scale.toFixed(3));
-  }
-
-  window.addEventListener('resize', applyDashboardScale);
-  applyDashboardScale();
-
   // ===== 25년 실적 (한국·당시즌 기준, 참조값) =====
   const DATA25 = {
     netp:  577.5,   // 25년 실판V+
@@ -798,6 +776,5 @@
   }
   loadInsights();
 </script>
-</div>
 </body>
 </html>
