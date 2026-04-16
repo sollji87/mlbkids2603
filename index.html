@@ -6,28 +6,11 @@
 <title>MLB KIDS 시즌별 판매·재고 회수 현황 (26.03 기준)</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  :root {
-    --bg: #f3f6fb;
-    --bg-accent: rgba(59, 130, 246, 0.08);
-    --card: rgba(255, 255, 255, 0.92);
-    --card-strong: #ffffff;
-    --line: #dbe4f0;
-    --line-strong: #c6d3e6;
-    --text: #102033;
-    --muted: #6b7c93;
-    --blue: #1f4ed8;
-    --blue-soft: #eaf2ff;
-    --red: #dc2626;
-    --red-soft: #fff1f1;
-    --shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
-  }
   html, body { width: 100%; height: 100%; overflow: hidden; }
   body {
     font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
-    background:
-      radial-gradient(circle at top left, var(--bg-accent), transparent 32%),
-      linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
-    color: var(--text);
+    background: #f5f6f8;
+    color: #1a1f2c;
     font-size: 11px;
     letter-spacing: -0.01em;
   }
@@ -35,60 +18,36 @@
   /* ===== Layout (fit-to-viewport) ===== */
   .dashboard {
     display: grid;
-    grid-template-rows: 58px 92px 1fr;
-    gap: 10px;
+    grid-template-rows: 44px 74px 1fr;
+    gap: 8px;
     min-height: 100vh;
     min-height: 100dvh;
     width: 100%;
-    padding: 12px 14px;
+    padding: 8px 12px;
   }
   .main-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.68fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
     gap: 10px;
     overflow: hidden;
-    min-height: 0;
   }
   .right-stack {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 0.92fr 1.08fr;
+    grid-template-rows: 1fr 1fr;
     gap: 10px;
     overflow: hidden;
-    min-height: 0;
   }
   .panel.p-action { grid-column: 1 / -1; }
 
   /* ===== Header ===== */
   header {
     display: flex; align-items: center; justify-content: space-between;
-    background: rgba(255, 255, 255, 0.78);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(198, 211, 230, 0.75);
-    border-radius: 16px;
-    padding: 0 18px;
-    box-shadow: var(--shadow);
-    position: relative;
+    border-left: 4px solid #1e40af; padding-left: 12px;
   }
-  header::before {
-    content: "";
-    position: absolute;
-    left: 10px;
-    top: 12px;
-    bottom: 12px;
-    width: 4px;
-    border-radius: 999px;
-    background: linear-gradient(180deg, #1e40af 0%, #60a5fa 100%);
-  }
-  header .title-block { padding-left: 14px; }
   header h1 {
-    font-size: 16px; font-weight: 800; color: #0f172a;
+    font-size: 17px; font-weight: 800; color: #0f172a;
     letter-spacing: -0.02em;
-  }
-  header .title-block p {
-    margin-top: 2px;
-    font-size: 9.5px;
-    color: var(--muted);
   }
   header .meta {
     display: flex; gap: 14px; align-items: center;
@@ -96,31 +55,18 @@
   }
   header .meta b { color: #334155; }
   header .badge {
-    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 65%, #60a5fa 100%);
-    color: #fff; padding: 5px 12px;
-    border-radius: 999px; font-size: 10px; font-weight: 800;
-    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.22);
+    background: #1e40af; color: #fff; padding: 3px 10px;
+    border-radius: 20px; font-size: 10px; font-weight: 700;
   }
 
   /* ===== KPI Cards ===== */
-  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .kpi {
-    background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.96) 100%);
-    border-radius: 14px; padding: 12px 14px;
-    border: 1px solid var(--line);
+    background: #ffffff; border-radius: 8px; padding: 8px 12px;
+    border: 1px solid #e2e8f0;
     display: grid; grid-template-columns: auto 1fr; gap: 12px;
     align-items: center;
-    box-shadow: var(--shadow);
-    position: relative;
-    overflow: hidden;
-  }
-  .kpi::after {
-    content: "";
-    position: absolute;
-    inset: 0 auto auto 0;
-    height: 3px;
-    width: 100%;
-    background: linear-gradient(90deg, rgba(37, 99, 235, 0.85), rgba(96, 165, 250, 0.25));
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   }
   .kpi-year {
     font-size: 22px; font-weight: 900; color: #334155;
@@ -136,13 +82,13 @@
 
   /* ===== Main Table Card ===== */
   .main-card {
-    background: var(--card-strong); border-radius: 16px; border: 1px solid var(--line);
-    padding: 10px 14px; display: flex; flex-direction: column;
-    box-shadow: var(--shadow); overflow: hidden;
+    background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0;
+    padding: 8px 12px; display: flex; flex-direction: column;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); overflow: hidden;
   }
   .card-head {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #e6edf6;
+    margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0;
   }
   .card-head h2 {
     font-size: 12.5px; font-weight: 700; color: #0f172a;
@@ -152,30 +98,21 @@
     content: ""; width: 3px; height: 12px; background: #1e40af; border-radius: 2px;
   }
   .card-head .legend {
-    font-size: 9px; color: #0f172a; display: flex; gap: 6px;
-  }
-  .card-head .legend span {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 7px;
-    border-radius: 999px;
-    background: #f8fbff;
-    border: 1px solid #e2e8f0;
+    font-size: 9.5px; color: #0f172a; display: flex; gap: 10px;
   }
   .card-head .legend span i {
-    font-style: normal; margin-right: 0;
+    font-style: normal; margin-right: 3px;
   }
   .card-head .legend .l-yr i { color: #93c5fd; }
   .card-head .legend .l-pos i { color: #1e40af; }
   .card-head .legend .l-neg i { color: #dc2626; }
 
   /* ===== Data Table ===== */
-  .tbl-wrap { flex: 1; overflow: hidden; display: flex; min-height: 0; border-radius: 12px; }
+  .tbl-wrap { flex: 1; overflow: hidden; display: flex; min-height: 0; }
   table { width: 100%; height: 100%; border-collapse: collapse; font-size: 10.5px; table-layout: fixed; }
   thead th {
-    background: linear-gradient(180deg, #f8fbff 0%, #eff5fb 100%); color: #334155; padding: 6px 4px; text-align: center;
-    font-weight: 700; border-bottom: 2px solid var(--line-strong);
+    background: #f1f5f9; color: #334155; padding: 5px 4px; text-align: center;
+    font-weight: 700; border-bottom: 2px solid #cbd5e1;
     font-size: 10px; letter-spacing: -0.01em;
   }
   thead th.left { text-align: center; }
@@ -188,28 +125,27 @@
   .main-card thead th:nth-child(10),
   .main-card tbody td:nth-child(10),
   .main-card thead th:nth-child(12),
-  .main-card tbody td:nth-child(12) { background: #e8f1ff; }
+  .main-card tbody td:nth-child(12) { background: #dbeafe; }
   .main-card tbody tr.year-total td:nth-child(7),
   .main-card tbody tr.year-total td:nth-child(10),
-  .main-card tbody tr.year-total td:nth-child(12) { background: #d9e5ff; }
+  .main-card tbody tr.year-total td:nth-child(12) { background: #c7d2fe; }
 
   /* Table footnote */
   .table-foot-note {
-    margin-top: 8px; font-size: 9px; color: #334155;
-    padding: 6px 10px; background: #f8fbff; border-radius: 10px;
+    margin-top: 6px; font-size: 9.5px; color: #334155;
+    padding: 5px 10px; background: #f8fafc; border-radius: 4px;
     border: 1px solid #e2e8f0;
-    display: flex; gap: 12px;
+    display: flex; gap: 14px;
   }
   .table-foot-note b { color: #0f172a; margin-right: 3px; }
   tbody td {
     padding: 3px 4px; text-align: right; border-bottom: 1px solid #f1f5f9;
     color: #1e293b; font-variant-numeric: tabular-nums;
   }
-  tbody tr:nth-child(even):not(.year-total):not(.yoy-row):not(.proj-row) { background: rgba(248, 251, 255, 0.75); }
   tbody td.left { text-align: left; font-weight: 600; color: #0f172a; }
-  tbody tr:hover { background: #f6faff; }
+  tbody tr:hover { background: #f8fafc; }
   tbody tr.year-total {
-    background: linear-gradient(180deg, #eef4ff 0%, #e6efff 100%); font-weight: 800;
+    background: #eef2ff; font-weight: 800;
   }
   tbody tr.year-total td {
     border-top: 1.5px solid #93c5fd; border-bottom: 1.5px solid #93c5fd;
@@ -233,14 +169,13 @@
   .b-neg { color: #dc2626; font-weight: 700; }
 
   .panel {
-    background: var(--card); border-radius: 16px; border: 1px solid var(--line);
-    padding: 10px 14px; display: flex; flex-direction: column;
-    box-shadow: var(--shadow); overflow: hidden;
-    backdrop-filter: blur(8px);
+    background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0;
+    padding: 8px 12px; display: flex; flex-direction: column;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); overflow: hidden;
   }
   .panel h3 {
     font-size: 12px; font-weight: 700; color: #0f172a;
-    margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #e6edf6;
+    margin-bottom: 6px; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0;
     display: flex; align-items: center; gap: 6px;
   }
   .panel h3::before {
@@ -251,7 +186,7 @@
   .panel table { font-size: 10.5px; }
   .panel table thead th { padding: 4px 4px; font-size: 10px; }
   .panel table tbody td { padding: 3px 4px; }
-  .panel .note { font-size: 9.5px; color: #6f8298; margin-top: 8px; line-height: 1.45; background: #f8fbff; border: 1px solid #e7eef8; border-radius: 10px; padding: 8px 9px; }
+  .panel .note { font-size: 9.5px; color: #94a3b8; margin-top: 6px; line-height: 1.4; }
 
   /* Insight list */
   .insight-list {
@@ -259,8 +194,8 @@
     overflow: auto; flex: 1;
   }
   .insight-list li {
-    padding: 5px 8px; font-size: 9.8px; line-height: 1.35;
-    background: #f8fbff; border-left: 2.5px solid #bfdbfe; border-radius: 8px;
+    padding: 3px 6px; font-size: 9.8px; line-height: 1.3;
+    background: #f8fafc; border-left: 2.5px solid #cbd5e1; border-radius: 2px;
     color: #334155;
   }
   .insight-list li b { color: #0f172a; }
@@ -268,7 +203,7 @@
   .insight-list li:empty { display: none; }
   .add-insight-btn {
     float: right; border: none; background: #dbeafe; color: #1e40af;
-    width: 20px; height: 20px; border-radius: 50%; cursor: pointer;
+    width: 18px; height: 18px; border-radius: 50%; cursor: pointer;
     font-size: 13px; font-weight: 800; line-height: 16px; text-align: center;
     font-family: inherit;
   }
@@ -277,12 +212,12 @@
   /* Scenario Tabs */
   .scenario-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 6px; }
   .stab {
-    padding: 7px 8px; border: 1px solid #dbe4f0;
-    background: #f8fbff; border-radius: 10px; cursor: pointer;
+    padding: 5px 6px; border: 1px solid #e2e8f0;
+    background: #f8fafc; border-radius: 5px; cursor: pointer;
     font-family: inherit;
     display: grid; grid-template-columns: 1fr auto; gap: 2px 6px;
     align-items: center; text-align: left;
-    transition: all .16s ease;
+    transition: all .12s ease;
   }
   .stab .stab-head { font-size: 10.5px; font-weight: 800; color: #475569; }
   .stab .stab-sub  { font-size: 9px; font-weight: 600; color: #64748b; grid-column: 1 / -1; }
@@ -293,7 +228,7 @@
   }
   .stab .stab-yoy.pos { background: #dbeafe; color: #1e40af; }
   .stab .stab-yoy.neg { background: #fee2e2; color: #b91c1c; }
-  .stab.active { background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%); border-color: #1e40af; box-shadow: 0 10px 18px rgba(37, 99, 235, 0.22); }
+  .stab.active { background: #1e40af; border-color: #1e40af; }
   .stab.active .stab-head { color: #fff; }
   .stab.active .stab-sub  { color: #bfdbfe; }
   .stab.active .stab-yoy.pos { background: #1e3a8a; color: #dbeafe; }
@@ -302,11 +237,11 @@
 
   /* Scenario Body */
   .scenario-body {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
     flex: 1; align-content: start;
   }
   .sc-block {
-    padding: 8px 10px; background: #f8fbff; border-radius: 12px; border: 1px solid #e2e8f0;
+    padding: 6px 9px; background: #f8fafc; border-radius: 5px; border: 1px solid #e2e8f0;
   }
   .sc-block h4 {
     font-size: 9.5px; color: #64748b; margin-bottom: 4px; font-weight: 700;
@@ -316,12 +251,12 @@
   .sc-row .lab { color: #475569; }
   .sc-row .val { font-weight: 700; color: #0f172a; font-variant-numeric: tabular-nums; }
   .sc-highlight {
-    padding: 10px 12px; border-radius: 12px;
+    padding: 7px 10px; border-radius: 5px;
     border: 1px solid #e2e8f0; background: #f8fafc;
     display: flex; justify-content: space-between; align-items: center;
   }
-  .sc-highlight.pos { background: linear-gradient(180deg, #eff6ff 0%, #e4efff 100%); border-color: #bfdbfe; }
-  .sc-highlight.neg { background: linear-gradient(180deg, #fff2f2 0%, #ffe8e8 100%); border-color: #fecaca; }
+  .sc-highlight.pos { background: #eff6ff; border-color: #bfdbfe; }
+  .sc-highlight.neg { background: #fef2f2; border-color: #fecaca; }
   .sc-highlight .lab { font-size: 10.5px; color: #334155; font-weight: 700; }
   .sc-highlight .lab small { display: block; font-size: 9.5px; color: #64748b; font-weight: 500; margin-top: 1px; }
   .sc-highlight .val { font-size: 17px; font-weight: 900; font-variant-numeric: tabular-nums; }
@@ -368,9 +303,8 @@
 
   <!-- ===== Header ===== -->
   <header>
-    <div class="title-block">
+    <div>
       <h1>MLB KIDS 시즌별 판매·재고 회수 현황</h1>
-      <p>판매율, 재고잔존, 현금회수 구조를 한 화면에서 비교</p>
     </div>
     <div class="meta">
       <span class="badge">기준월 2026.03</span>
